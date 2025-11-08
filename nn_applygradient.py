@@ -60,8 +60,9 @@ def nn_applygradient(nn, batch_x, batch_y):
 
             elif method == 'RMSProp + Nesterov':
                 rho = 0.9  # RMSProp衰减率
-                alpha = 0.95  # Nesterov动量系数
+                alpha = 0.9  # Nesterov动量系数
 
+                # 计算临时更新
                 theta_temp_W = nn.W[k] + alpha * nn.vW[k]
                 theta_temp_b = nn.b[k] + alpha * nn.vb[k]
 
@@ -149,7 +150,7 @@ def nn_applygradient(nn, batch_x, batch_y):
 
             elif method == 'RMSProp + Nesterov':
                 rho = 0.9  # RMSProp衰减率
-                alpha = 0.5  # Nesterov动量系数
+                alpha = 0.9  # Nesterov动量系数
 
                 theta_temp_W = nn.W[k] + alpha * nn.vW[k]
                 theta_temp_b = nn.b[k] + alpha * nn.vb[k]
@@ -170,7 +171,6 @@ def nn_applygradient(nn, batch_x, batch_y):
                 nn.rGamma[k] = rho * nn.rGamma[k] + (1-rho)*nn.Gamma_grad[k]**2
                 nn.rBeta[k] = rho * nn.rBeta[k] + (1-rho)*nn.Beta_grad[k]**2
                          
-                # 更新速度（结合RMSProp和Nesterov）
                 nn.vW[k] = alpha * nn.vW[k] - nn.learning_rate*nn.W_grad[k]/(np.sqrt(nn.rW[k]) + 0.001)
                 nn.vb[k] = alpha * nn.vb[k] - nn.learning_rate*nn.b_grad[k]/(np.sqrt(nn.rb[k]) + 0.001)
                 nn.vGamma[k] = alpha * nn.vGamma[k] - nn.learning_rate*nn.Gamma_grad[k]/(np.sqrt(nn.rGamma[k]) + 0.001)

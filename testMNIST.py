@@ -13,6 +13,8 @@ from nn_backward import nn_backward
 from nn_applygradient import nn_applygradient
 from function import sigmoid, softmax
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def save_variable(v,filename):
     f=open(filename,'wb')
@@ -65,10 +67,16 @@ ratioTraining = 0.95
 xTraining, xValidation, yTraining, yValidation = train_test_split(data, label, test_size=1 - ratioTraining, random_state=0)  # 随机分配数据集
 
 
-if os.path.exists('storedNN.npz'):
-    nn = load_variable('storedNN.npz')
+if os.path.exists('storedNN_MNIST.npz'):
+    nn = load_variable('storedNN_MNIST.npz')
 else:
-    nn = NN(layer=[784,400,169,49,10], batch_normalization = 1, active_function='relu', batch_size = 50, learning_rate=0.01, optimization_method='Adam',objective_function='Cross Entropy')
+    nn = NN(layer=[784,400,169,49,10], 
+            batch_normalization = 1, 
+            active_function='relu', 
+            batch_size = 50, 
+            learning_rate=0.01, 
+            optimization_method='Adam', 
+            objective_function='Cross Entropy')
 
 epoch = 0
 maxAccuracy = 0
@@ -122,3 +130,13 @@ if os.path.exists('storedNN_MNIST.npz'):
         trueLabel = np.argmax(yTesting[i,:])
         confusionMatrix[trueLabel,predictedLabel[i]]+=1
     print('The Confusion Matrix is:\n', confusionMatrix)
+
+    # plot confusion matrix
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(confusionMatrix, annot=True, fmt='d', cmap='Blues', 
+                xticklabels=range(10),
+                yticklabels=range(10))
+    plt.xlabel('Predicted Label', fontsize=12) 
+    plt.ylabel('True Label', fontsize=12)
+    plt.title('Confusion Matrix for MNIST Classification', fontsize=14)
+    plt.savefig('confusion matrix_MNIST.png', dpi=300)

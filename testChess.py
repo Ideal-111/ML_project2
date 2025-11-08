@@ -11,6 +11,7 @@ from nn_applygradient import nn_applygradient
 from function import *
 import numpy as np
 import pickle
+import seaborn as sns
 import os
 
 def save_variable(v,filename):
@@ -71,27 +72,29 @@ nn = NN(layer=[6, 20, 20, 20, 20, 2],
         batch_size = 100,
         learning_rate = 0.01,
         optimization_method='RMSProp + Nesterov', 
-        batch_normalization = 1, # batch_normalization = 0: 99.50%, batch_normalization = 1: 99.%, 
-        objective_function='Cross Entropy')
+        batch_normalization = 1,
+        objective_function='Cross Entropy',
+        )
 
-epoch = 0
-maxAccuracy = 0
-totalAccuracy = []
-totalCost = []
-maxEpoches = 100
-for epoch in range(maxEpoches):
-#    epoch +=1
-    nn = nn_train(nn, xTraining, yTraining)
-    totalCost.append(sum(nn.cost.values()) / len(nn.cost.values()))
-    _, _, accuracy, _ = nn_test(nn, xValidation, yValidation)
-    totalAccuracy.append(accuracy)
-    if accuracy > maxAccuracy:
-        maxAccuracy = accuracy
-        save_variable(nn, 'storedNN_chess.npz')
-    cost = totalCost[epoch - 1]
-    print('Epoch:',epoch)
-    print('Accuracy:',accuracy)
-    print('Cost:',totalCost[epoch - 1])
+# 训练代码，测试的时候可以注释掉
+# epoch = 0
+# maxAccuracy = 0
+# totalAccuracy = []
+# totalCost = []
+# maxEpoches = 100
+# for epoch in range(maxEpoches):
+# #    epoch +=1
+#     nn = nn_train(nn, xTraining, yTraining)
+#     totalCost.append(sum(nn.cost.values()) / len(nn.cost.values()))
+#     _, _, accuracy, _ = nn_test(nn, xValidation, yValidation)
+#     totalAccuracy.append(accuracy)
+#     if accuracy > maxAccuracy:
+#         maxAccuracy = accuracy
+#         save_variable(nn, 'storedNN_chess.npz')
+#     cost = totalCost[epoch - 1]
+#     print('Epoch:',epoch)
+#     print('Accuracy:',accuracy)
+#     print('Cost:',totalCost[epoch - 1])
 
 if os.path.exists('storedNN_chess.npz'):
     storedNN = load_variable('storedNN_chess.npz')
@@ -117,27 +120,42 @@ if os.path.exists('storedNN_chess.npz'):
     for i in range(len(labels)):
         labels[i] = np.argmax(yTesting[index[i]])
 
-    truePositive = np.zeros(len(labels) + 1)
-    falsePositive = np.zeros(len(labels) + 1)
+    roc_truePositive = np.zeros(len(labels) + 1)
+    roc_falsePositive = np.zeros(len(labels) + 1)
     for i in range(len(totalScores)):
         if labels[i] < 0.5:
-            truePositive[0] += 1
+            roc_truePositive[0] += 1
         else:
-            falsePositive[0] += 1
+            roc_falsePositive[0] += 1
     for i in range(len(totalScores)):
         if labels[i] < 0.5:
-            truePositive[i + 1] = truePositive[i] - 1
-            falsePositive[i + 1] = falsePositive[i]
+            roc_truePositive[i + 1] = roc_truePositive[i] - 1
+            roc_falsePositive[i + 1] = roc_falsePositive[i]
         else:
-            falsePositive[i + 1] = falsePositive[i] - 1
-            truePositive[i + 1] = truePositive[i]
-    truePositive = truePositive / truePositive[0]
-    falsePositive = falsePositive / falsePositive[0]
+            roc_falsePositive[i + 1] = roc_falsePositive[i] - 1
+            roc_truePositive[i + 1] = roc_truePositive[i]
+    roc_truePositive = roc_truePositive / roc_truePositive[0]
+    roc_falsePositive = roc_falsePositive / roc_falsePositive[0]
+
+    confusion_matrix = np.array([
+    [truePositive, falseNegative], 
+    [falsePositive, trueNegative] 
+])
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(confusion_matrix, annot=True, fmt='d', cmap='Blues', 
+                xticklabels=range(2),
+                yticklabels=range(2))
+    plt.xlabel('Predicted Label')
+    plt.ylabel('True Label')
+    plt.title('Confusion Matrix for Chess')
+    plt.savefig('confusion matrix Chess.png', dpi=300)
+
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(falsePositive, truePositive)
+    ax.plot(roc_falsePositive, roc_truePositive)
     plt.savefig('ROC.png', dpi=300)
     plt.show()
+
 
 
 

@@ -11,8 +11,8 @@ class NN:
                 'cost':{}, 
                 'batch_normalization':0,
                 'optimization_method':'normal',
-                'objective_function':'MSE'
-               }
+                'objective_function':'MSE',
+                }
         
         param = dict() # 字典结构实现参数列表
         param.update(init)
@@ -101,5 +101,3 @@ class NN:
                     self.vBeta[k] = 0
                     self.rGamma[k] = 0
                     self.rBeta[k] = 0
-
-

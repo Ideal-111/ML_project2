@@ -26,4 +26,4 @@ python testMNIST.py
 
 ## 其他
 
-- 运行代码需要的python包：numpy、matplotlib、scikit-learn
+- 运行代码需要的python包：numpy、matplotlib、scikit-learn、seaborn
